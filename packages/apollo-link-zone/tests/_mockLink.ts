@@ -1,4 +1,4 @@
-import {ApolloLink, Operation, NextLink, Observable} from 'apollo-link';
+import {ApolloLink, Operation, Observable} from 'apollo-link';
 import {ExecutionResult} from 'graphql';
 
 interface MockedOperation {
@@ -7,7 +7,7 @@ interface MockedOperation {
 }
 
 export const withMock = (mockedOperations: MockedOperation[]): ApolloLink => {
-  return new ApolloLink((operation: Operation, forward: NextLink) => {
+  return new ApolloLink((operation: Operation) => {
     return new Observable(observer => {
       let sub: any;
 

@@ -1,1 +1,2 @@
-export * from './api';
+export {ZoneLink, withZone} from './ZoneLink';
+export {ZoneHandler} from './types';

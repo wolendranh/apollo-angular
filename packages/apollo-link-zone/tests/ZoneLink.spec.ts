@@ -1,4 +1,11 @@
-import {ApolloLink, execute} from 'apollo-link';
+
+import 'zone.js/dist/zone-node';
+import 'zone.js/dist/proxy.js';
+import 'zone.js/dist/sync-test';
+import 'zone.js/dist/async-test';
+import 'zone.js/dist/fake-async-test';
+import 'jest-zone-patch';
+import {execute} from 'apollo-link';
 
 import {ZoneLink} from '../src/ZoneLink';
 import {withMock} from './_mockLink';
