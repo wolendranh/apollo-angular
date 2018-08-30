@@ -1,6 +1,7 @@
-import {Injectable} from '@angular/core';
+import {Injectable, Optional, Inject, NgZone} from '@angular/core';
 import {
   ApolloClient,
+  QueryOptions,
   WatchQueryOptions,
   MutationOptions,
   ApolloQueryResult,
@@ -8,24 +9,30 @@ import {
   ApolloClientOptions,
 } from 'apollo-client';
 import {FetchResult} from 'apollo-link';
-import {Observable} from 'rxjs/Observable';
-import {from} from 'rxjs/observable/from';
+import {Observable, from} from 'rxjs';
 
 import {QueryRef} from './QueryRef';
-import {TypedVariables, R} from './types';
-import {fromPromise, wrapWithZone} from './utils';
+import {TypedVariables, ExtraSubscriptionOptions, R} from './types';
+import {APOLLO_OPTIONS} from './tokens';
+import {fromPromise, wrapWithZone, fixObservable} from './utils';
 
 export class ApolloBase<TCacheShape = any> {
-  constructor(private _client?: ApolloClient<TCacheShape>) {}
+  constructor(
+    private ngZone: NgZone,
+    private _client?: ApolloClient<TCacheShape>,
+  ) {}
 
   public watchQuery<T, V = R>(
     options: WatchQueryOptions & TypedVariables<V>,
-  ): QueryRef<T> {
-    return new QueryRef<T>(this.client.watchQuery<T>({...options}));
+  ): QueryRef<T, V> {
+    return new QueryRef<T, V>(
+      this.client.watchQuery<T>({...options}),
+      this.ngZone,
+    );
   }
 
   public query<T, V = R>(
-    options: WatchQueryOptions & TypedVariables<V>,
+    options: QueryOptions & TypedVariables<V>,
   ): Observable<ApolloQueryResult<T>> {
     return fromPromise<ApolloQueryResult<T>>(() =>
       this.client.query<T>({...options}),
@@ -40,8 +47,15 @@ export class ApolloBase<TCacheShape = any> {
     );
   }
 
-  public subscribe(options: SubscriptionOptions): Observable<any> {
-    return wrapWithZone(from(this.client.subscribe({...options})));
+  public subscribe(
+    options: SubscriptionOptions,
+    extra?: ExtraSubscriptionOptions,
+  ): Observable<any> {
+    const obs = from(fixObservable(this.client.subscribe({...options})));
+
+    return extra && extra.useZone !== true
+      ? obs
+      : wrapWithZone(obs, this.ngZone);
   }
 
   public getClient() {
@@ -80,8 +94,17 @@ export class Apollo extends ApolloBase<any> {
     ApolloBase<any>
   >();
 
-  constructor() {
-    super();
+  constructor(
+    private _ngZone: NgZone,
+    @Optional()
+    @Inject(APOLLO_OPTIONS)
+    apolloOptions?: ApolloClientOptions<any>,
+  ) {
+    super(_ngZone);
+
+    if (apolloOptions) {
+      this.createDefault(apolloOptions);
+    }
   }
 
   public create<TCacheShape>(
@@ -113,7 +136,7 @@ export class Apollo extends ApolloBase<any> {
       throw new Error('Apollo has been already created.');
     }
 
-    return this.setClient(new ApolloClient<TCacheShape>(options as any));
+    return this.setClient(new ApolloClient<TCacheShape>(options));
   }
 
   public createNamed<TCacheShape>(
@@ -125,7 +148,7 @@ export class Apollo extends ApolloBase<any> {
     }
     this.map.set(
       name,
-      new ApolloBase(new ApolloClient<TCacheShape>(options as any)),
+      new ApolloBase(this._ngZone, new ApolloClient<TCacheShape>(options)),
     );
   }
 }

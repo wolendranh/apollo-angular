@@ -1,55 +1,83 @@
 {
   "name": "apollo-angular",
-  "version": "1.0.1",
-  "author":
-    "Kamil Kisiela <kamil.kisiela@gmail.com> (http://github.com/kamilkisiela/)",
+  "description": "Use your GraphQL data in your Angular app, with the Apollo Client",
+  "version": "1.2.0",
+  "author": "Kamil Kisiela <kamil.kisiela@gmail.com> (http://github.com/kamilkisiela/)",
   "license": "MIT",
-  "main": "./build/bundle.umd.js",
-  "module": "./build/src/index.js",
-  "jsnext:main": "./build/src/index.js",
-  "typings": "./build/src/index.d.ts",
+  "sideEffects": false,
+  "main": "build/bundles/ng.apollo.umd.js",
+  "module": "build/fesm5/ng.apollo.js",
+  "typings": "build/ng.apollo.d.ts",
   "repository": {
     "type": "git",
     "url": "apollographql/apollo-angular"
   },
+  "keywords": [
+    "apollo",
+    "graphql",
+    "angular",
+    "schematics",
+    "angular-schematics"
+  ],
   "scripts": {
-    "build": "./node_modules/.bin/ngc -p tsconfig.build.json",
-    "bundle": "rollup -c rollup.config.js",
-    "test": "npm run test-only",
+    "build": "ng-packagr -p ng-package.js && yarn build:schematics",
+    "build:schematics": "tsc -p schematics/tsconfig.json && node ./scripts/move-schematics.js",
+    "test": "yarn test-only",
+    "posttest": "yarn test:testing && yarn test:schematics",
     "test-only": "jest --config jest.config.js",
-    "lint":
-      "tslint -c ../../tslint.json -p tsconfig.json --type-check {src,tests}/*.ts",
-    "postbuild": "npm run bundle",
-    "deploy": "../../scripts/deploy.sh"
+    "test:testing": "jest --config testing/jest.config.js",
+    "test:schematics": "jest --config schematics/jest.config.js",
+    "prebuild": "rm -rf build/",
+    "deploy": "yarn build && npm publish build"
   },
   "peerDependencies": {
-    "@angular/core": "^4.0.0 || ^5.0.0-rc.0",
-    "apollo-client": "^2.0.0",
+    "@angular/core": "^6.1.0",
+    "apollo-client": "^2.3.4",
     "apollo-link": "^1.0.0",
-    "rxjs": "^5.0.1",
-    "zone.js": "^0.8.4"
+    "rxjs": "^6.0.0",
+    "zone.js": "~0.8.20"
+  },
+  "dependencies": {
+    "semver": "^5.5.1"
   },
   "devDependencies": {
-    "@angular/common": "^4.4.4",
-    "@angular/compiler": "^4.4.4",
-    "@angular/compiler-cli": "^4.4.4",
-    "@angular/core": "^4.4.4",
-    "@angular/platform-browser": "^4.4.4",
-    "@angular/platform-browser-dynamic": "^4.4.4",
-    "@types/graphql": "^0.10.2",
-    "@types/jest": "^21.1.2",
-    "@types/zen-observable": "^0.5.3",
-    "apollo-cache-inmemory": "^1.0.0",
-    "apollo-client": "^2.0.1",
-    "apollo-link": "^0.8.0",
-    "graphql": "^0.11.7",
-    "graphql-tag": "^2.5.0",
-    "jest": "^21.2.1",
+    "@angular-devkit/core": "0.7.5",
+    "@angular-devkit/schematics": "0.7.5",
+    "@angular/common": "6.1.6",
+    "@angular/compiler": "6.1.6",
+    "@angular/compiler-cli": "6.1.6",
+    "@angular/core": "6.1.6",
+    "@angular/platform-browser": "6.1.6",
+    "@angular/platform-browser-dynamic": "6.1.6",
+    "@schematics/angular": "0.7.5",
+    "@types/graphql": "0.13.4",
+    "@types/jest": "23.3.1",
+    "@types/node": "10.9.3",
+    "@types/semver": "5.5.0",
+    "apollo-cache-inmemory": "1.2.9",
+    "apollo-client": "2.4.1",
+    "apollo-link": "1.2.2",
+    "cpx": "1.5.0",
+    "graphql": "0.13.2",
+    "graphql-tag": "2.9.2",
+    "jest": "23.5.0",
     "jest-zone-patch": "0.0.8",
-    "rollup": "^0.50.0",
-    "rxjs": "^5.4.2",
-    "ts-jest": "^21.1.2",
-    "typescript": "^2.5.3",
-    "zone.js": "^0.8.4"
+    "ng-packagr": "4.1.1",
+    "rxjs": "6.2.2",
+    "ts-jest": "23.1.4",
+    "typescript": "2.9.2",
+    "zone.js": "0.8.26"
+  },
+  "schematics": "./schematics/collection.json",
+  "ng-update": {
+    "packageGroup": [
+      "apollo-angular",
+      "apollo-angular-link-http",
+      "apollo-link",
+      "apollo-client",
+      "apollo-cache-inmemory",
+      "graphql-tag",
+      "graphql"
+    ]
   }
 }

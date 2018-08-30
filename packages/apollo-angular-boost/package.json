@@ -1,0 +1,60 @@
+{
+  "name": "apollo-angular-boost",
+  "description": "The easiest way to get started with Apollo Client in Angular",
+  "author": "Kamil Kisiela <kamil.kisiela@gmail.com> (http://github.com/kamilkisiela/)",
+  "license": "MIT",
+  "main": "build/bundles/ng.apolloBoost.umd.js",
+  "module": "build/fesm5/ng.apolloBoost.js",
+  "typings": "build/ng.apolloBoost.d.ts",
+  "version": "1.0.0",
+  "repository": {
+    "type": "git",
+    "url": "apollographql/apollo-angular"
+  },
+  "keywords": [
+    "apollo",
+    "graphql",
+    "angular"
+  ],
+  "scripts": {
+    "build": "ng-packagr -p ng-package.js",
+    "test": "yarn test-only",
+    "test-only": "jest --config jest.config.js",
+    "deploy": "yarn build && npm publish build"
+  },
+  "peerDependencies": {
+    "@angular/core": "^6.0.0",
+    "@angular/common": "^6.0.0"
+  },
+  "dependencies": {
+    "apollo-cache-inmemory": "~1.2.5",
+    "apollo-angular": "~1.2.0",
+    "apollo-client": "^2.3.1",
+    "apollo-angular-link-http": "~1.2.0",
+    "apollo-link": "~1.2.2",
+    "apollo-link-error": "~1.1.0",
+    "apollo-link-state": "~0.4.1",
+    "graphql-tag": "~2.9.2"
+  },
+  "devDependencies": {
+    "@angular/animations": "6.1.6",
+    "@angular/common": "6.1.6",
+    "@angular/compiler": "6.1.6",
+    "@angular/compiler-cli": "6.1.6",
+    "@angular/core": "6.1.6",
+    "@angular/http": "6.1.6",
+    "@angular/platform-browser": "6.1.6",
+    "@angular/platform-browser-dynamic": "6.1.6",
+    "@angular/platform-server": "6.1.6",
+    "@types/graphql": "0.13.4",
+    "@types/jest": "23.3.1",
+    "graphql": "0.13.2",
+    "jest": "23.5.0",
+    "jest-zone-patch": "0.0.8",
+    "ng-packagr": "4.1.1",
+    "rxjs": "6.2.2",
+    "ts-jest": "23.1.4",
+    "typescript": "2.9.2",
+    "zone.js": "0.8.26"
+  }
+}

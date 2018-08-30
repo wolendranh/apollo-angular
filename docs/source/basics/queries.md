@@ -7,7 +7,7 @@ your Angular UI. This guide assumes some familiarity with GraphQL itself. You
 can read about GraphQL queries themselves in detail at
 [graphql.org](http://graphql.org/docs/queries/).
 
-One of our core values is "it's just GraphQL". When using Apollo Client, you
+One of our core values is "it's just GraphQL." When using Apollo Client, you
 don't have to learn anything special about the query syntax, since everything is
 just standard GraphQL. Anything you can type into the GraphQL query IDE, you
 can also put into your Apollo Client code.
@@ -37,14 +37,16 @@ const CurrentUserForProfile = gql`
 `;
 
 @Component({ ... })
-class ProfileComponent implements OnInit {
+class ProfileComponent implements OnInit, OnDestroy {
   loading: boolean;
   currentUser: any;
+
+  private querySubscription: Subscription;
 
   constructor(private apollo: Apollo) {}
 
   ngOnInit() {
-    this.apollo.watchQuery<any>({
+    this.querySubscription = this.apollo.watchQuery<any>({
       query: CurrentUserForProfile
     })
       .valueChanges
@@ -53,6 +55,10 @@ class ProfileComponent implements OnInit {
         this.currentUser = data.currentUser;
       });
   }
+
+  ngOnDestroy() {
+    this.querySubscription.unsubscribe();
+  }
 }
 ```
 
@@ -60,7 +66,7 @@ The `watchQuery` method returns a `QueryRef` object which has the `valueChanges`
 property that is an `Observable`.
 
 We can see that the result object contains `loading`, a Boolean indicating if
-the query is "in-flight". The observable will only emit once when the query is
+the query is "in-flight." The observable will only emit once when the query is
 complete, and `loading` will be set to false unless you set the `watchQuery`
 parameters `notifyOnNetworkStatusChange` or `returnPartialData` to true. Once
 the query has completed, it will also contain a `data` object with
@@ -79,10 +85,12 @@ above.
 <h3 id="queryref">What is QueryRef</h3>
 
 As you know, `Apollo.query` method returns an Observable that emits a result,
-just once, but `Apollo.watchQuery` also does the same except it passes multiple
-results.
+just once. `Apollo.watchQuery` also does the same, except it can emit multiple
+results. (The GraphQL query itself is still only sent once, but the `watchQuery`
+observable can also update if, for example, another query causes the object to
+be updated within Apollo Client's global cache.)
 
-So why `Apollo.watchQuery` can not expose an Observable?
+So why doesn't `Apollo.watchQuery` expose an Observable?
 
 Apollo service and ApolloClient share pretty much the same API. It makes things
 easy to understand and use. No reason to change it.
@@ -91,17 +99,17 @@ In `ApolloClient.watchQuery` returns an Observable, but not a standard one, it
 contains many useful methods (like `refetch()`) to manipulate the watched query.
 A normal Observable, has only one method, `subscribe()`.
 
-To use that Apollo's Observable in RxJS we would have to drop those method and
-Since they are necessary to use Apollo with its full potential we had to come up
+To use that Apollo's Observable in RxJS, we would have to drop those methods.
+Since they are necessary to use Apollo to its full potential, we had to come up
 with a solution.
 
-This is why we created the `QueryRef`.
+This is why we created `QueryRef`.
 
-The API of `QueryRef` is very simple. It has the same methods as the Apollo's
-Observable we talked about. To subscribe to query results you have to access
+The API of `QueryRef` is very simple. It has the same methods as the Apollo
+Observable we talked about. To subscribe to query results, you have to access its
 `valueChanges` property which exposes a clean RxJS Observable.
 
-Worth to mention that `QueryRef` accepts two generic types. More about that in
+It's worth mentioning that `QueryRef` accepts two generic types. More about that in
 [Static Typing](../features/static-typing.html).
 
 <h2 id="options">Providing `options`</h2>
@@ -128,9 +136,11 @@ const CurrentUserForProfile = gql`
     Login: {{currentUser?.profile}}
   `,
 })
-class ProfileComponent {
+class ProfileComponent implements OnInit, OnDestroy {
+  currentUser: any;
+  private querySubscription: Subscription;
   ngOnInit() {
-    this.data = this.apollo
+    this.querySubscription = this.apollo
       .watchQuery({
         query: CurrentUserForProfile,
         variables: {
@@ -140,6 +150,9 @@ class ProfileComponent {
       .valueChanges.subscribe(({data}) => {
         this.currentUser = data.currentUser;
       });
+  }
+  ngOnDestroy() {
+    this.querySubscription.unsubscribe();
   }
 }
 ```
@@ -151,7 +164,7 @@ put `AsyncPipe` on top of the property inside the UI. You can also achieve this
 with Apollo.
 
 > Note: Using async pipe more than once in your template will trigger the query
-> for each pipe. To avoid the situation subscribe to the data in the component,
+> for each pipe. To avoid this situation, subscribe to the data in the component,
 > and display the data from the component's property.
 
 An Observable returned by `watchQuery().valueChanges` holds the actual result
@@ -164,7 +177,7 @@ of the property you want to get from `data`.
 ```ts
 import {Component, OnInit} from '@angular/core';
 import {Apollo} from 'apollo-angular';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 import gql from 'graphql-tag';
 
 const FeedQuery = gql`
@@ -216,15 +229,14 @@ Without using `SelectPipe`, you would get the whole object instead of only the
 `Apollo` is compatible with RxJS by using same Observable so it can be used with
 operators.
 
-What's really interesting, because of this you can avoid using `SelectPipe`:
+What's really interesting is that, because of this, you can avoid using `SelectPipe`:
 
 ```ts
 import {Component, OnInit} from '@angular/core';
 import {Apollo} from 'apollo-angular';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
+import {map} from 'rxjs/operators';
 import gql from 'graphql-tag';
-
-import 'rxjs/add/operator/map';
 
 const FeedQuery = gql`
   query Feed {
@@ -253,16 +265,14 @@ class FeedComponent implements OnInit {
   ngOnInit() {
     this.data = this.apollo
       .watchQuery({query: FeedQuery})
-      .valueChanges.map(({data}) => data.feed);
+      .valueChanges.pipe(map(({data}) => data.feed));
   }
 }
 ```
 
 The `map` operator we are using here is provided by the RxJS `Observable` which
-serves as the basis for the `Observable`. By default Angular however only
-includes a minimal subset of RxJS `Observable` operators in order to keep the
-[footprint small](https://github.com/angular/angular/issues/5632#issuecomment-167026172).
+serves as the basis for the `Observable`.
 
 To be able to use the `map` operator (and most others like `switchMap`,
 `filter`, `merge`, ...) these have to be explicitly imported as done in the
-example: `import 'rxjs/add/operator/map'`.
+example: `import {map} from 'rxjs/operators'`.

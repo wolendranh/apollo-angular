@@ -3,17 +3,14 @@ sudo: false
 language: node_js
 
 node_js:
-  - "8"
+  - '8'
 
 notifications:
   email: false
 
-install:
-  - npm run bootstrap
-  - npm prune
+install: yarn install
 
 script:
-  - npm test
-  - npm run lint
+  - yarn test
 
-after_success: npm run coverage
+after_success: yarn coverage

@@ -1,0 +1,44 @@
+{
+  "name": "apollo-angular-link-persisted",
+  "description": "Use persisted queries with Apollo Link",
+  "author": "Kamil Kisiela <kamil.kisiela@gmail.com> (http://github.com/kamilkisiela/)",
+  "license": "MIT",
+  "sideEffects": false,
+  "main": "build/bundles/ng.apolloLink.persisted.umd.js",
+  "module": "build/fesm5/ng.apolloLink.persisted.js",
+  "typings": "build/ng.apolloLink.persisted.d.ts",
+  "version": "1.0.0",
+  "repository": {
+    "type": "git",
+    "url": "apollographql/apollo-angular"
+  },
+  "keywords": [
+    "apollo",
+    "graphql",
+    "angular"
+  ],
+  "scripts": {
+    "build": "ng-packagr -p ng-package.js",
+    "test": "yarn test-only",
+    "test-only": "jest --config jest.config.js",
+    "deploy": "yarn build && npm publish build"
+  },
+  "peerDependencies": {
+    "apollo-link": "^1.0.0"
+  },
+  "dependencies": {
+    "apollo-link-context": "^1.0.7",
+    "apollo-link-persisted-queries": "~0.2.0"
+  },
+  "devDependencies": {
+    "@types/graphql": "0.13.4",
+    "@types/jest": "23.3.1",
+    "apollo-link": "1.2.2",
+    "graphql": "0.13.2",
+    "graphql-tag": "2.9.2",
+    "jest": "23.5.0",
+    "ng-packagr": "4.1.1",
+    "ts-jest": "23.1.4",
+    "typescript": "2.9.2"
+  }
+}
