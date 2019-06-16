@@ -230,4 +230,92 @@ describe('Integration', () => {
 
     backend.expectOne(addTypenameToDocument(query)).flush({data});
   });
+
+  test('catch networkError (query)', done => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      imports: [ApolloTestingModule],
+      providers: [
+        {
+          provide: APOLLO_TESTING_CACHE,
+          useValue: new InMemoryCache({addTypename: true}),
+        },
+      ],
+    });
+
+    const apollo: Apollo = TestBed.get(Apollo);
+    const backend: ApolloTestingController = TestBed.get(
+      ApolloTestingController,
+    );
+
+    const query = gql`
+      {
+        heroes {
+          name
+        }
+      }
+    `;
+
+    const op = {
+      query,
+    };
+
+    const networkError = new Error('EXPECTED');
+
+    apollo.query<any>(op).subscribe({
+      next: () => {
+        done.fail('Should not receive a result');
+      },
+      error(error) {
+        expect(error.networkError).toBe(networkError);
+        done();
+      },
+    });
+
+    backend.expectOne(addTypenameToDocument(query)).networkError(networkError);
+  });
+
+  test('catch networkError (watchQuery)', done => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      imports: [ApolloTestingModule],
+      providers: [
+        {
+          provide: APOLLO_TESTING_CACHE,
+          useValue: new InMemoryCache({addTypename: true}),
+        },
+      ],
+    });
+
+    const apollo: Apollo = TestBed.get(Apollo);
+    const backend: ApolloTestingController = TestBed.get(
+      ApolloTestingController,
+    );
+
+    const query = gql`
+      {
+        heroes {
+          name
+        }
+      }
+    `;
+
+    const op = {
+      query,
+    };
+
+    const networkError = new Error('EXPECTED');
+
+    apollo.watchQuery<any>(op).valueChanges.subscribe({
+      next: () => {
+        done.fail('Should not receive a result');
+      },
+      error(error) {
+        expect(error.networkError).toBe(networkError);
+        done();
+      },
+    });
+
+    backend.expectOne(addTypenameToDocument(query)).networkError(networkError);
+  });
 });
