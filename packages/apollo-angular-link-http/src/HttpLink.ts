@@ -56,6 +56,7 @@ export class HttpLinkHandler extends ApolloLink {
             withCredentials,
             useMultipart,
             headers: this.options.headers,
+            reportProgress: this.options.reportProgress || false,
           },
         };
 

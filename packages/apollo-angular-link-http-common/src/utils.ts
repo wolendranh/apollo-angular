@@ -1,4 +1,9 @@
-import {HttpHeaders, HttpResponse, HttpClient} from '@angular/common/http';
+import {
+  HttpHeaders,
+  HttpResponse,
+  HttpClient,
+  HttpEvent,
+} from '@angular/common/http';
 import {Observable} from 'rxjs';
 
 import {Request, Body, ExtractFiles} from './types';
@@ -7,7 +12,7 @@ export const fetch = (
   req: Request,
   httpClient: HttpClient,
   extractFiles: ExtractFiles,
-): Observable<HttpResponse<Object>> => {
+): Observable<HttpResponse<Object> | HttpEvent<Object>> => {
   const shouldUseBody =
     ['POST', 'PUT', 'PATCH'].indexOf(req.method.toUpperCase()) !== -1;
   const shouldStringify = (param: string) =>
@@ -95,11 +100,12 @@ export const fetch = (
     (bodyOrParams as any).body = form;
   }
 
+  const observe = req.options.reportProgress ? 'events' : 'response';
+
   // create a request
   return httpClient.request<Object>(req.method, req.url, {
-    observe: 'response',
+    observe,
     responseType: 'json',
-    reportProgress: false,
     ...bodyOrParams,
     ...req.options,
   });

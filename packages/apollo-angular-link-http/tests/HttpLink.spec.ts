@@ -3,7 +3,11 @@ import {setupAngular} from './_setup';
 import gql from 'graphql-tag';
 
 import {TestBed, inject, async} from '@angular/core/testing';
-import {HttpClientModule, HttpHeaders} from '@angular/common/http';
+import {
+  HttpClientModule,
+  HttpHeaders,
+  HttpEventType,
+} from '@angular/common/http';
 import {
   HttpClientTestingModule,
   HttpTestingController,
@@ -153,6 +157,61 @@ describe('HttpLink', () => {
       expect(req.detectContentTypeHeader()).toBe('application/json');
       return true;
     });
+  });
+
+  test('should send it as JSON with reportProgress', () => {
+    const link = httpLink.create({uri: 'graphql', reportProgress: true});
+    const op = {
+      query: gql`
+        query heroes {
+          heroes {
+            name
+          }
+        }
+      `,
+      operationName: 'heroes',
+      variables: {},
+    };
+
+    execute(link, op).subscribe(noop);
+
+    httpBackend.match(req => {
+      expect(req.body.operationName).toBe(op.operationName);
+      expect(req.reportProgress).toBe(true);
+      expect(req.responseType).toBe('json');
+      expect(req.detectContentTypeHeader()).toBe('application/json');
+      return true;
+    });
+  });
+
+  test('should response HttpEvent', () => {
+    const link = httpLink.create({uri: 'graphql', reportProgress: true});
+    const op = {
+      query: gql`
+        query heroes {
+          heroes {
+            name
+          }
+        }
+      `,
+      operationName: 'heroes',
+      variables: {},
+    };
+
+    execute(link, op).subscribe((event: any) => {
+      console.log(event);
+      switch (event.type) {
+        case HttpEventType.DownloadProgress:
+          console.log(event.loaded);
+          expect(event.loaded).not.toBe(null);
+      }
+    });
+
+    const data = {
+      heroes: [{name: 'Superman'}],
+    };
+
+    httpBackend.expectOne(req => req.reportProgress === true).flush({data});
   });
 
   test('should use POST by default', () => {

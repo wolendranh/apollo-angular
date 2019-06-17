@@ -5,6 +5,7 @@ export type HttpRequestOptions = {
   headers?: HttpHeaders;
   withCredentials?: boolean;
   useMultipart?: boolean;
+  reportProgress?: boolean;
 };
 
 export type URIFunction = (operation: Operation) => string;
