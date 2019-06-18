@@ -103,7 +103,7 @@ export const fetch = (
   const observe = req.options.reportProgress ? 'events' : 'response';
 
   // create a request
-  return httpClient.request<Object>(req.method, req.url, {
+  return httpClient.request(req.method, req.url, {
     observe,
     responseType: 'json',
     ...bodyOrParams,
