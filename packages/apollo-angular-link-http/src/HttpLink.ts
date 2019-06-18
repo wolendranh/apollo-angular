@@ -44,6 +44,7 @@ export class HttpLinkHandler extends ApolloLink {
         const url = pick('uri', 'graphql');
         const withCredentials = pick('withCredentials');
         const useMultipart = pick('useMultipart');
+        const reportProgress = pick('reportProgress', false);
 
         const req: Request = {
           method,
@@ -55,8 +56,8 @@ export class HttpLinkHandler extends ApolloLink {
           options: {
             withCredentials,
             useMultipart,
+            reportProgress,
             headers: this.options.headers,
-            reportProgress: this.options.reportProgress || false,
           },
         };
 
