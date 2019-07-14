@@ -8,7 +8,7 @@ Now that you have learned how to read and update your data, its helpful to know 
 
 Apollo Client has a pluggable network interface layer, which can let you configure how queries are sent over HTTP, or replace the whole network part with something completely custom, like a websocket transport, mocked server data, or anything else you can imagine.
 
-### Using an link
+### Using an linkFixed typo in Network layer (Apollo Link) docs
 
 To create a link to use with Apollo Client, you can install and import one from npm or create your own. We recommend using `apollo-angular-link-http` for most setups!
 
@@ -145,7 +145,7 @@ The following example shows the use of multiple middlewares passed as an array:
 ```ts
 import { Apollo } from 'apollo-angular';
 import { HttpLink } from 'apollo-angular-link-http';
-import { ApolloLink, from } from 'apollo-link';
+import { ApolloLink } from 'apollo-link';
 
 @NgModule({ ... })
 class AppModule {
